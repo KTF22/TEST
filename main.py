@@ -1,61 +1,58 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
-from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from datetime import datetime
 
 class PensionApp(App):
     def build(self):
-        self.title = "Pension Calculator - Khalid Fares"
+        self.title = "Pension Calculator"
         
-        # خلفية داكنة مريحة
+        # خلفية داكنة مستقرة تمنع أخطاء السطح
         Window.clearcolor = (0.1, 0.12, 0.15, 1)
 
-        scroll = ScrollView()
-        main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15, size_hint_y=None)
-        main_layout.bind(minimum_height=main_layout.setter('height'))
+        # استخدام GridLayout بدلاً من ScrollView لتفادي خطأ g buffer size error
+        main_layout = GridLayout(cols=1, padding=30, spacing=15)
 
         # 1. العنوان
-        main_layout.add_widget(Label(text="Pension Calculator", font_size='26sp', bold=True, size_hint_y=None, height=50))
+        main_layout.add_widget(Label(text="Pension Calculator", font_size='24sp', bold=True, size_hint_y=None, height=40))
 
         # 2. تاريخ الالتحاق
-        main_layout.add_widget(Label(text="Employment Start Date (DD/MM/YYYY):", font_size='14sp', bold=True, size_hint_y=None, height=30))
-        self.date1_entry = TextInput(placeholder_text="e.g. 01/07/1994", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(Label(text="Start Date (DD/MM/YYYY):", font_size='14sp', size_hint_y=None, height=20))
+        self.date1_entry = TextInput(placeholder_text="01/07/1994", halign="center", multiline=False, size_hint_y=None, height=45)
         main_layout.add_widget(self.date1_entry)
 
         # 3. تاريخ التقاعد
-        main_layout.add_widget(Label(text="Retirement Date (DD/MM/YYYY):", font_size='14sp', bold=True, size_hint_y=None, height=30))
-        self.date2_entry = TextInput(placeholder_text="e.g. 10/10/2026", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(Label(text="Retirement Date (DD/MM/YYYY):", font_size='14sp', size_hint_y=None, height=20))
+        self.date2_entry = TextInput(placeholder_text="10/10/2026", halign="center", multiline=False, size_hint_y=None, height=45)
         main_layout.add_widget(self.date2_entry)
 
         # 4. الراتب
-        main_layout.add_widget(Label(text="Current Salary (Optional):", font_size='14sp', bold=True, size_hint_y=None, height=30))
-        self.salary_entry = TextInput(placeholder_text="Enter your salary here", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(Label(text="Current Salary (Optional):", font_size='14sp', size_hint_y=None, height=20))
+        self.salary_entry = TextInput(placeholder_text="Enter salary", halign="center", multiline=False, size_hint_y=None, height=45)
         main_layout.add_widget(self.salary_entry)
 
         # 5. زر الحساب
-        calc_button = Button(text="Calculate Pension", font_size='16sp', bold=True, background_color=(0.2, 0.4, 0.8, 1), size_hint_y=None, height=50)
+        calc_button = Button(text="Calculate", font_size='16sp', bold=True, background_color=(0.2, 0.4, 0.8, 1), size_hint_y=None, height=50)
         calc_button.bind(on_press=self.calculate_pension)
         main_layout.add_widget(calc_button)
 
-        # --- شاشة النتائج ---
-        self.service_label = Label(text="Total Service Period: --", font_size='14sp', size_hint_y=None, height=35)
+        # --- شاشة النتائج المتوافقة ---
+        self.service_label = Label(text="Service Period: --", font_size='14sp', size_hint_y=None, height=30)
         main_layout.add_widget(self.service_label)
 
-        self.pension_ratio_label = Label(text="Pension Percentage: --", font_size='16sp', bold=True, color=(0.2, 0.6, 0.9, 1), size_hint_y=None, height=35)
+        self.pension_ratio_label = Label(text="Percentage: --", font_size='15sp', bold=True, color=(0.2, 0.6, 0.9, 1), size_hint_y=None, height=30)
         main_layout.add_widget(self.pension_ratio_label)
 
-        self.final_pension_label = Label(text="Expected Salary: --", font_size='18sp', bold=True, color=(0.2, 0.8, 0.4, 1), size_hint_y=None, height=35)
+        self.final_pension_label = Label(text="Expected Salary: --", font_size='16sp', bold=True, color=(0.2, 0.8, 0.4, 1), size_hint_y=None, height=30)
         main_layout.add_widget(self.final_pension_label)
 
         # 6. التوقيع
-        main_layout.add_widget(Label(text="Programmed by Khalid Fares (Al-Wahsh)", font_size='16sp', bold=True, color=(1, 0.2, 0.2, 1), size_hint_y=None, height=60))
+        main_layout.add_widget(Label(text="By Khalid Fares (Al-Wahsh)", font_size='14sp', color=(1, 0.2, 0.2, 1), size_hint_y=None, height=40))
 
-        scroll.add_widget(main_layout)
-        return scroll
+        return main_layout
 
     def calculate_pension(self, instance):
         try:
@@ -68,7 +65,7 @@ class PensionApp(App):
             pivot_date = datetime(2006, 9, 1)
 
             if end_date < start_date:
-                raise ValueError("Retirement date cannot be before employment date!")
+                raise ValueError("Error: End date before start date!")
 
             total_days_p1 = 0
             total_days_p2 = 0
@@ -97,8 +94,8 @@ class PensionApp(App):
             else:
                 salary_after_text = "Not Entered"
 
-            self.service_label.text = f"Total Service Period: {total_years_exact:.2f} Years"
-            self.pension_ratio_label.text = f"Pension Percentage: {total_ratio:.2f}%"
+            self.service_label.text = f"Service Period: {total_years_exact:.2f} Years"
+            self.pension_ratio_label.text = f"Percentage: {total_ratio:.2f}%"
             self.final_pension_label.text = f"Expected Salary: {salary_after_text}"
             self.final_pension_label.color = (0.2, 0.8, 0.4, 1)
 
