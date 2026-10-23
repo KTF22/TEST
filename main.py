@@ -1,73 +1,94 @@
-import customtkinter as ctk
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 from datetime import datetime
 
-# إعداد المظهر العام لتطبيق الكمبيوتر
-ctk.set_appearance_mode("dark")  
-ctk.set_default_color_theme("blue") 
+class PensionApp(App):
+    def build(self):
+        self.title = "برنامج حساب راتب التقاعد - خالد فارس"
+        
+        # إعداد لون خلفية النافذة الأساسي (داكن مثل customtkinter)
+        Window.clearcolor = (0.1, 0.12, 0.15, 1)
 
-class PensionApp(ctk.CTk):
-    def __init__(self):
-        super().__init__()
+        # حاوية رئيسية قابلة للتمرير لضمان ظهور العناصر على كل شاشات الهواتف
+        scroll = ScrollView()
+        main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15, size_hint_y=None)
+        main_layout.bind(minimum_height=main_layout.setter('height'))
 
-        # إعدادات النافذة
-        self.title("برنامج حساب راتب التقاعد - خالد فارس")
-        self.geometry("550x650")
-        self.resizable(False, False)
+        # 1. العنوان الرئيسي
+        main_layout.add_widget(Label(
+            text="حساب التقاعد", 
+            font_size='26sp', 
+            bold=True, 
+            size_hint_y=None, 
+            height=50,
+            font_name="ARIAL.TTF"
+        ))
 
-        # العنوان الرئيسي
-        self.title_label = ctk.CTkLabel(self, text="حساب التقاعد", font=ctk.CTkFont(family="Arial", size=26, weight="bold"))
-        self.title_label.pack(pady=20)
+        # 2. حقل تاريخ الالتحاق
+        main_layout.add_widget(Label(text="تاريخ الالتحاق بالوظيفة (يوم / شهر / سنة):", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
+        self.date1_entry = TextInput(placeholder_text="مثال: 01/07/1994", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(self.date1_entry)
 
-        # 1. حقل تاريخ الالتحاق
-        self.date1_label = ctk.CTkLabel(self, text=" بالوظيفة الالتحاق تاريخ (يوم / شهر / سنة):", font=ctk.CTkFont(size=14, weight="bold"))
-        self.date1_label.pack(pady=2)
-        self.date1_entry = ctk.CTkEntry(self, placeholder_text="مثال: 01/07/1994", width=320, justify="center", font=ctk.CTkFont(size=14))
-        self.date1_entry.pack(pady=5)
+        # 3. حقل تاريخ التقاعد
+        main_layout.add_widget(Label(text="تاريخ التقاعد (يوم / شهر / سنة):", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
+        self.date2_entry = TextInput(placeholder_text="مثال: 10/10/2026", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(self.date2_entry)
 
-        # 2. حقل تاريخ التقاعد
-        self.date2_label = ctk.CTkLabel(self, text="التقاعد تاريخ  (يوم / شهر / سنة):", font=ctk.CTkFont(size=14, weight="bold"))
-        self.date2_label.pack(pady=2)
-        self.date2_entry = ctk.CTkEntry(self, placeholder_text="مثال: 10/10/2026", width=320, justify="center", font=ctk.CTkFont(size=14))
-        self.date2_entry.pack(pady=5)
+        # 4. حقل الراتب الحالي
+        main_layout.add_widget(Label(text="الراتب الحالي قبل التقاعد:", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
+        self.salary_entry = TextInput(placeholder_text="أدخل الراتب الحالي هنا (اختياري)", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        main_layout.add_widget(self.salary_entry)
 
-        # 3. حقل الراتب الحالي (تم تعديل العنوان المطلوب هنا)
-        self.salary_label = ctk.CTkLabel(self, text="التقاعد قبل الحالي الراتب", font=ctk.CTkFont(size=14, weight="bold"))
-        self.salary_label.pack(pady=2)
-        self.salary_entry = ctk.CTkEntry(self, placeholder_text="أدخل الراتب الحالي هنا (اختياري)", width=320, justify="center", font=ctk.CTkFont(size=14))
-        self.salary_entry.pack(pady=5)
-
-        # زر الحساب
-        self.calc_button = ctk.CTkButton(self, text=" النسبة و المستحقات احسب", font=ctk.CTkFont(size=16, weight="bold"), command=self.calculate_pension, width=220, height=40)
-        self.calc_button.pack(pady=20)
+        # 5. زر الحساب الأزرق
+        calc_button = Button(
+            text="احسب النسبة والمستحقات", 
+            font_size='16sp', 
+            bold=True, 
+            background_color=(0.2, 0.4, 0.8, 1), 
+            size_hint_y=None, 
+            height=50,
+            font_name="ARIAL.TTF"
+        )
+        calc_button.bind(on_press=self.calculate_pension)
+        main_layout.add_widget(calc_button)
 
         # --- شاشة عرض النتائج التفصيلية ---
-        self.results_frame = ctk.CTkFrame(self, width=460, height=200, corner_radius=10)
-        self.results_frame.pack(pady=10, fill="x", padx=40)
+        self.service_label = Label(text="إجمالي مدة الخدمة الكلية: --", font_size='14sp', size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        main_layout.add_widget(self.service_label)
 
-        self.service_label = ctk.CTkLabel(self.results_frame, text=" إجمالي مدة الخدمة الكلية: --", font=ctk.CTkFont(size=14))
-        self.service_label.pack(pady=6)
+        self.pension_ratio_label = Label(text="إجمالي نسبة التقاعد المستحقة: --", font_size='16sp', bold=True, color=(0.2, 0.6, 0.9, 1), size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        main_layout.add_widget(self.pension_ratio_label)
 
-        self.pension_ratio_label = ctk.CTkLabel(self.results_frame, text="إجمالي نسبة التقاعد المستحقة: --", font=ctk.CTkFont(size=16, weight="bold"), text_color="#3498db")
-        self.pension_ratio_label.pack(pady=6)
+        self.final_pension_label = Label(text="الراتب المتوقع بعد التقاعد: --", font_size='18sp', bold=True, color=(0.2, 0.8, 0.4, 1), size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        main_layout.add_widget(self.final_pension_label)
 
-        self.final_pension_label = ctk.CTkLabel(self.results_frame, text="  الراتب المتوقع بعد التقاعد: --", font=ctk.CTkFont(size=18, weight="bold"), text_color="#2ecc71")
-        self.final_pension_label.pack(pady=6)
+        # 6. التوقيع البرمجي باللون الأحمر الفاقع
+        main_layout.add_widget(Label(
+            text="برمجة خالد فارس (الوحش)", 
+            font_size='18sp', 
+            bold=True, 
+            color=(1, 0.2, 0.2, 1), 
+            size_hint_y=None, 
+            height=60,
+            font_name="ARIAL.TTF"
+        ))
 
-        # التوقيع البرمجي (تم تحديث النص إلى الوحش وتعديل اللون للأحمر الفاقع)
-        self.signature_label = ctk.CTkLabel(self, text="برمجة خالد فارس (الوحش)", font=ctk.CTkFont(family="Arial", size=18, weight="bold"), text_color="#ff3333")
-        self.signature_label.pack(side="bottom", pady=20)
+        scroll.add_widget(main_layout)
+        return scroll
 
-    def calculate_pension(self):
+    def calculate_pension(self, instance):
         try:
-            # تنظيف الفراغات من النصوص المدخلة
-            d1_text = self.date1_entry.get().strip().replace("-", "/")
-            d2_text = self.date2_entry.get().strip().replace("-", "/")
+            d1_text = self.date1_entry.text.strip().replace("-", "/")
+            d2_text = self.date2_entry.text.strip().replace("-", "/")
 
-            # قراءة التواريخ بصيغة يوم/شهر/سنة
             start_date = datetime.strptime(d1_text, "%d/%m/%Y")
             end_date = datetime.strptime(d2_text, "%d/%m/%Y")
             
-            # تاريخ الفاصل الزمني المعتمد (1 سبتمبر 2006)
             pivot_date = datetime(2006, 9, 1)
 
             if end_date < start_date:
@@ -76,7 +97,6 @@ class PensionApp(ctk.CTk):
             total_days_p1 = 0
             total_days_p2 = 0
 
-            # حساب توزيع الأيام زمنياً بناءً على تاريخ الفاصل 1/9/2006
             if start_date < pivot_date:
                 end_p1 = min(end_date, pivot_date)
                 total_days_p1 = (end_p1 - start_date).days
@@ -85,18 +105,15 @@ class PensionApp(ctk.CTk):
                 start_p2 = max(start_date, pivot_date)
                 total_days_p2 = (end_date - start_p2).days
 
-            # تحويل الأيام الكلية إلى سنوات دقيقة
             years_p1 = total_days_p1 / 365.25
             years_p2 = total_days_p2 / 365.25
             total_years_exact = years_p1 + years_p2
 
-            # تطبيق المعادلات المالية
             ratio_p1 = years_p1 * 2.67  
             ratio_p2 = years_p2 * 2.00  
             total_ratio = ratio_p1 + ratio_p2
 
-            # حساب الراتب المتوقع بعد التقاعد
-            salary_input_text = self.salary_entry.get().strip()
+            salary_input_text = self.salary_entry.text.strip()
             if salary_input_text:
                 salary_before = float(salary_input_text)
                 salary_after = salary_before * (total_ratio / 100)
@@ -104,21 +121,19 @@ class PensionApp(ctk.CTk):
             else:
                 salary_after_text = "لم يتم إدخال الراتب الحالي"
 
-            # تحديث شاشة النتائج
-            self.service_label.configure(text=f"إجمالي مدة الخدمة الكلية: {total_years_exact:.2f} سنة")
-            self.pension_ratio_label.configure(text=f"إجمالي نسبة التقاعد المستحقة: {total_ratio:.2f}%")
-            self.final_pension_label.configure(text=f"الراتب المتوقع بعد التقاعد: {salary_after_text}")
-            self.final_pension_label.configure(text_color="#2ecc71")
+            self.service_label.text = f"إجمالي مدة الخدمة الكلية: {total_years_exact:.2f} سنة"
+            self.pension_ratio_label.text = f"إجمالي نسبة التقاعد المستحقة: {total_ratio:.2f}%"
+            self.final_pension_label.text = f"الراتب المتوقع بعد التقاعد: {salary_after_text}"
+            self.final_pension_label.color = (0.2, 0.8, 0.4, 1)
 
         except ValueError as e:
-            self.pension_ratio_label.configure(text="خطأ في الإدخال!")
+            self.pension_ratio_label.text = "خطأ في الإدخال!"
             if "strptime" in str(e):
-                self.final_pension_label.configure(text="يرجى كتابة التاريخ بصيغة صحيحة: يوم/شهر/سنة", text_color="#e74c3c")
+                self.final_pension_label.text = "يرجى كتابة التاريخ بشكل صحيح: يوم/شهر/سنة"
+                self.final_pension_label.color = (0.9, 0.3, 0.2, 1)
             else:
-                self.final_pension_label.configure(text=str(e), text_color="#e74c3c")
+                self.final_pension_label.text = str(e)
+                self.final_pension_label.color = (0.9, 0.3, 0.2, 1)
 
-# تشغيل التطبيق
 if __name__ == "__main__":
-    app = PensionApp()
-    app.mainloop()
-
+    PensionApp().run()
