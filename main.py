@@ -9,74 +9,50 @@ from datetime import datetime
 
 class PensionApp(App):
     def build(self):
-        self.title = "برنامج حساب راتب التقاعد - خالد فارس"
+        self.title = "Pension Calculator - Khalid Fares"
         
-        # إعداد لون خلفية النافذة الأساسي (داكن مثل customtkinter)
+        # خلفية داكنة مريحة
         Window.clearcolor = (0.1, 0.12, 0.15, 1)
 
-        # حاوية رئيسية قابلة للتمرير لضمان ظهور العناصر على كل شاشات الهواتف
         scroll = ScrollView()
         main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15, size_hint_y=None)
         main_layout.bind(minimum_height=main_layout.setter('height'))
 
-        # 1. العنوان الرئيسي
-        main_layout.add_widget(Label(
-            text="حساب التقاعد", 
-            font_size='26sp', 
-            bold=True, 
-            size_hint_y=None, 
-            height=50,
-            font_name="ARIAL.TTF"
-        ))
+        # 1. العنوان
+        main_layout.add_widget(Label(text="Pension Calculator", font_size='26sp', bold=True, size_hint_y=None, height=50))
 
-        # 2. حقل تاريخ الالتحاق
-        main_layout.add_widget(Label(text="تاريخ الالتحاق بالوظيفة (يوم / شهر / سنة):", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
-        self.date1_entry = TextInput(placeholder_text="مثال: 01/07/1994", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        # 2. تاريخ الالتحاق
+        main_layout.add_widget(Label(text="Employment Start Date (DD/MM/YYYY):", font_size='14sp', bold=True, size_hint_y=None, height=30))
+        self.date1_entry = TextInput(placeholder_text="e.g. 01/07/1994", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
         main_layout.add_widget(self.date1_entry)
 
-        # 3. حقل تاريخ التقاعد
-        main_layout.add_widget(Label(text="تاريخ التقاعد (يوم / شهر / سنة):", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
-        self.date2_entry = TextInput(placeholder_text="مثال: 10/10/2026", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        # 3. تاريخ التقاعد
+        main_layout.add_widget(Label(text="Retirement Date (DD/MM/YYYY):", font_size='14sp', bold=True, size_hint_y=None, height=30))
+        self.date2_entry = TextInput(placeholder_text="e.g. 10/10/2026", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
         main_layout.add_widget(self.date2_entry)
 
-        # 4. حقل الراتب الحالي
-        main_layout.add_widget(Label(text="الراتب الحالي قبل التقاعد:", font_size='14sp', bold=True, size_hint_y=None, height=30, font_name="ARIAL.TTF"))
-        self.salary_entry = TextInput(placeholder_text="أدخل الراتب الحالي هنا (اختياري)", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
+        # 4. الراتب
+        main_layout.add_widget(Label(text="Current Salary (Optional):", font_size='14sp', bold=True, size_hint_y=None, height=30))
+        self.salary_entry = TextInput(placeholder_text="Enter your salary here", halign="center", multiline=False, size_hint_y=None, height=45, font_size='14sp')
         main_layout.add_widget(self.salary_entry)
 
-        # 5. زر الحساب الأزرق
-        calc_button = Button(
-            text="احسب النسبة والمستحقات", 
-            font_size='16sp', 
-            bold=True, 
-            background_color=(0.2, 0.4, 0.8, 1), 
-            size_hint_y=None, 
-            height=50,
-            font_name="ARIAL.TTF"
-        )
+        # 5. زر الحساب
+        calc_button = Button(text="Calculate Pension", font_size='16sp', bold=True, background_color=(0.2, 0.4, 0.8, 1), size_hint_y=None, height=50)
         calc_button.bind(on_press=self.calculate_pension)
         main_layout.add_widget(calc_button)
 
-        # --- شاشة عرض النتائج التفصيلية ---
-        self.service_label = Label(text="إجمالي مدة الخدمة الكلية: --", font_size='14sp', size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        # --- شاشة النتائج ---
+        self.service_label = Label(text="Total Service Period: --", font_size='14sp', size_hint_y=None, height=35)
         main_layout.add_widget(self.service_label)
 
-        self.pension_ratio_label = Label(text="إجمالي نسبة التقاعد المستحقة: --", font_size='16sp', bold=True, color=(0.2, 0.6, 0.9, 1), size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        self.pension_ratio_label = Label(text="Pension Percentage: --", font_size='16sp', bold=True, color=(0.2, 0.6, 0.9, 1), size_hint_y=None, height=35)
         main_layout.add_widget(self.pension_ratio_label)
 
-        self.final_pension_label = Label(text="الراتب المتوقع بعد التقاعد: --", font_size='18sp', bold=True, color=(0.2, 0.8, 0.4, 1), size_hint_y=None, height=35, font_name="ARIAL.TTF")
+        self.final_pension_label = Label(text="Expected Salary: --", font_size='18sp', bold=True, color=(0.2, 0.8, 0.4, 1), size_hint_y=None, height=35)
         main_layout.add_widget(self.final_pension_label)
 
-        # 6. التوقيع البرمجي باللون الأحمر الفاقع
-        main_layout.add_widget(Label(
-            text="برمجة خالد فارس (الوحش)", 
-            font_size='18sp', 
-            bold=True, 
-            color=(1, 0.2, 0.2, 1), 
-            size_hint_y=None, 
-            height=60,
-            font_name="ARIAL.TTF"
-        ))
+        # 6. التوقيع
+        main_layout.add_widget(Label(text="Programmed by Khalid Fares (Al-Wahsh)", font_size='16sp', bold=True, color=(1, 0.2, 0.2, 1), size_hint_y=None, height=60))
 
         scroll.add_widget(main_layout)
         return scroll
@@ -92,7 +68,7 @@ class PensionApp(App):
             pivot_date = datetime(2006, 9, 1)
 
             if end_date < start_date:
-                raise ValueError("تاريخ التقاعد لا يمكن أن يكون قبل تاريخ الالتحاق!")
+                raise ValueError("Retirement date cannot be before employment date!")
 
             total_days_p1 = 0
             total_days_p2 = 0
@@ -119,21 +95,17 @@ class PensionApp(App):
                 salary_after = salary_before * (total_ratio / 100)
                 salary_after_text = f"{salary_after:,.2f}"
             else:
-                salary_after_text = "لم يتم إدخال الراتب الحالي"
+                salary_after_text = "Not Entered"
 
-            self.service_label.text = f"إجمالي مدة الخدمة الكلية: {total_years_exact:.2f} سنة"
-            self.pension_ratio_label.text = f"إجمالي نسبة التقاعد المستحقة: {total_ratio:.2f}%"
-            self.final_pension_label.text = f"الراتب المتوقع بعد التقاعد: {salary_after_text}"
+            self.service_label.text = f"Total Service Period: {total_years_exact:.2f} Years"
+            self.pension_ratio_label.text = f"Pension Percentage: {total_ratio:.2f}%"
+            self.final_pension_label.text = f"Expected Salary: {salary_after_text}"
             self.final_pension_label.color = (0.2, 0.8, 0.4, 1)
 
         except ValueError as e:
-            self.pension_ratio_label.text = "خطأ في الإدخال!"
-            if "strptime" in str(e):
-                self.final_pension_label.text = "يرجى كتابة التاريخ بشكل صحيح: يوم/شهر/سنة"
-                self.final_pension_label.color = (0.9, 0.3, 0.2, 1)
-            else:
-                self.final_pension_label.text = str(e)
-                self.final_pension_label.color = (0.9, 0.3, 0.2, 1)
+            self.pension_ratio_label.text = "Input Error!"
+            self.final_pension_label.text = str(e)
+            self.final_pension_label.color = (0.9, 0.3, 0.2, 1)
 
 if __name__ == "__main__":
     PensionApp().run()
