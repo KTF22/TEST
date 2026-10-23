@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout code
@@ -27,7 +27,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev xclip libx11-dev
         pip install pip==23.2.1
-        pip install --upgrade virtualenv Cython==0.29.33 buildozer
+        pip install --upgrade virtualenv buildozer
+        pip install "Cython<3.0.0"
 
     - name: Build with Buildozer
       run: |
