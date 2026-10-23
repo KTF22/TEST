@@ -1,6 +1,6 @@
 [app]
 title = My Kivy Application
-package.name = pensionapp
+package.name = KTFapp
 package.domain = org.khalidfares
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ttf
