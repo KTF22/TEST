@@ -5,33 +5,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/kivy/buildozer:master
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-
-    - name: Install Dependencies
+    - name: Configure Git Safe Directory
       run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev sqlite3 bzip2 libbz2-dev xclip libx11-dev
-        pip install pip==23.2.1
-        pip install --upgrade virtualenv buildozer
-        pip install "Cython<3.0.0"
+        git config --global --add safe.directory /__w/TEST/TEST
 
     - name: Build with Buildozer
       run: |
+        pip install pip==23.2.1
+        pip install "Cython<3.0.0" --upgrade
         yes | buildozer -v android debug
       env:
         GRADLE_OPTS: "-Dorg.gradle.daemon=false"
